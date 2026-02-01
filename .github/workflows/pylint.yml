@@ -1,4 +1,4 @@
-name: CloudDev Pylint
+name: CloudDev CICD
 
 on: [push]
 
