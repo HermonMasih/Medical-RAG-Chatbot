@@ -1,0 +1,94 @@
+[MASTER]
+; Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
+; number of processors available to use.
+jobs=1
+
+; Python code to execute, usually for sys.path manipulation
+init-hook='import sys; sys.path.append(".")'
+
+[MESSAGES CONTROL]
+; Disable or enable specific messages
+disable=missing-docstring,invalid-name,too-few-public-methods,line-too-long
+
+[REPORTS]
+; Set the output format. Available formats are text, parseable, colorized, json
+; and msvs (visual studio). You can also give a reporter class, e.g.
+; reporters.text.TextReporter
+output-format=text
+
+; Include message's id in output
+include-ids=yes
+
+; Template used to display messages. This is a python new-style format string
+; used to format the message information. See doc for all details.
+msg-template='{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'
+
+[BASIC]
+; Naming style matching correct function names
+function-naming-style=snake_case
+
+; Naming style matching correct variable names
+variable-naming-style=snake_case
+
+; Naming style matching correct constant names
+const-naming-style=UPPER_CASE
+
+; Naming style matching correct method names
+method-naming-style=snake_case
+
+; Naming style matching correct class names
+class-naming-style=PascalCase
+
+; Naming style matching correct attribute names
+attr-naming-style=snake_case
+
+[FORMAT]
+; Maximum number of characters on a single line.
+max-line-length=88
+
+; String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1
+; tab).
+indent-string='    '
+
+[TYPECHECK]
+; List of decorators that produce context managers, such as
+; contextlib.contextmanager. Add to this list to register other decorators that
+; produce valid context managers.
+contextmanager-decorators=contextlib.contextmanager
+
+[VARIABLES]
+; A regular expression matching the name of dummy variables (i.e. expected to not
+; be used).
+dummy-variables-rgx=_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_
+
+[DESIGN]
+; Maximum number of arguments for function / method.
+max-args=5
+
+; Maximum number of locals for function / method body.
+max-locals=15
+
+; Maximum number of return / yield for function / method body.
+max-returns=6
+
+; Maximum number of branch for function / method body.
+max-branches=12
+
+; Maximum number of statements in function / method body.
+max-statements=50
+
+; Minimum number of public methods for a class (see R0903).
+min-public-methods=2
+
+[SIMILARITIES]
+; Minimum lines number of a similarity.
+min-similarity-lines=4
+
+; Ignore comments when computing similarities.
+ignore-comments=yes
+
+; Ignore docstrings when computing similarities.
+ignore-docstrings=yes
+
+; Ignore imports when computing similarities.
+ignore-imports=no
