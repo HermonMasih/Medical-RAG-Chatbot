@@ -1,3 +1,4 @@
+''' Setup script for the medical_chatbot package.'''
 from setuptools import setup, find_packages
 
 setup(
