@@ -1,4 +1,4 @@
-name: Pylint
+name: CloudDev Pylint
 
 on: [push]
 
