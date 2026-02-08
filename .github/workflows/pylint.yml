@@ -1,4 +1,4 @@
-name: CloudDev CICD
+name: CloudDev CI/CD
 
 on: [push]
 

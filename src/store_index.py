@@ -1,0 +1,36 @@
+''' Pinecone store index implementation. '''
+
+from src.helper import load_pdfs, filter_pdf_documents, perform_chunking, get_embeddings
+from pinecone import Pinecone, ServerlessSpec
+from langchain_pinecone import PineconeVectorStore
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+os.environ['PINECONE_API_KEY'] = os.getenv('PINECONE_API_KEY')
+os.environ['HUGGINGFACEHUB_API_TOKEN'] = os.getenv('HUGGINGFACEHUB_API_TOKEN')
+
+extracted_documents = load_pdfs('pdfs')
+filtered_documents = filter_pdf_documents(extracted_documents)
+text_chunks = perform_chunking(filtered_documents)
+embedding_model = get_embeddings()
+
+pc = Pinecone(api_key=os.environ['PINECONE_API_KEY'])
+
+index_name = "medical-chatbot-index"
+
+if not pc.has_index(index_name):
+    pc.create_index(
+        name=index_name,
+        dimension=384,
+        metric="cosine",
+        spec=ServerlessSpec(cloud="aws", region="us-east-1")
+    )
+
+docsearch = PineconeVectorStore.from_documents(
+    documents=text_chunks,
+    embedding=embedding_model,
+    index_name=index_name
+)
+
