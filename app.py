@@ -14,13 +14,14 @@ load_dotenv()
 
 os.environ['PINECONE_API_KEY'] = os.getenv('PINECONE_API_KEY')
 os.environ['HUGGINGFACEHUB_API_TOKEN'] = os.getenv('HUGGINGFACEHUB_API_TOKEN')
+os.environ['PINECONE_INDEX_NAME'] = os.getenv('PINECONE_INDEX_NAME')
 
 embedding = get_embeddings()
-index_name = 'medical-chatbot-index'
+index_name = os.environ['PINECONE_INDEX_NAME']
 docsearch = PineconeVectorStore.from_existing_index(
     index_name=index_name,
     embedding=embedding
-    )
+)
 
 retriever = docsearch.as_retriever(search_type = 'similarity', search_kwargs={"k": 3})
 
@@ -42,10 +43,13 @@ rag_chain = create_retrieval_chain(retriever, question_answering_chain)
 
 @app.route('/')
 def index():
+    '''Render the chat interface.'''
     return render_template('chat.html')
+
 
 @app.route('/get', methods=['GET', 'POST'])
 def chat():
+    '''Handle user input and generate a response.'''
     msg = request.form['msg']
     input = msg
     print(f"User input: {input}")
