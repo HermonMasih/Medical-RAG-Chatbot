@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request,jsonify
-from src.helper import get_embeddings
+import os
+from flask import Flask, render_template, request
 from langchain_pinecone import PineconeVectorStore
 from langchain_openai import ChatOpenAI
 from langchain.chains import create_retrieval_chain
@@ -7,7 +7,7 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 from src.prompt import *
-import os
+from src.helper import get_embeddings
 
 app = Flask(__name__)
 load_dotenv()
@@ -48,14 +48,14 @@ def index():
 
 
 @app.route('/get', methods=['GET', 'POST'])
-def chat():
+def chat_retriever():
     '''Handle user input and generate a response.'''
     msg = request.form['msg']
-    input = msg
-    print(f"User input: {input}")
+    input_msg = msg
+    print(f"User input: {input_msg}")
     response = rag_chain.invoke({'input': msg})
     print("RAG Chain Response: ", response['answer'])
-    return str(response['answer']) 
+    return str(response['answer'])
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)

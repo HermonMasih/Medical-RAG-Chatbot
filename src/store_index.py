@@ -1,10 +1,10 @@
 ''' Pinecone store index implementation. '''
 
-from src.helper import load_pdfs, filter_pdf_documents, perform_chunking, get_embeddings
-from pinecone import Pinecone, ServerlessSpec
-from langchain_pinecone import PineconeVectorStore
-from dotenv import load_dotenv
 import os
+from langchain_pinecone import PineconeVectorStore
+from pinecone import Pinecone, ServerlessSpec
+from dotenv import load_dotenv
+from src.helper import load_pdfs, filter_pdf_documents, perform_chunking, get_embeddings
 
 load_dotenv()
 
@@ -33,4 +33,3 @@ docsearch = PineconeVectorStore.from_documents(
     embedding=embedding_model,
     index_name=index_name
 )
-
