@@ -33,7 +33,7 @@ chat = ChatOpenAI(
 
 prompt = ChatPromptTemplate.from_messages(
     [
-        ("system", system_prompt),
+        ("system", SYSTEM_PROMPT),
         ("human", "{input}")
     ]
 )

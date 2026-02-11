@@ -18,11 +18,11 @@ embedding_model = get_embeddings()
 
 pc = Pinecone(api_key=os.environ['PINECONE_API_KEY'])
 
-index_name = "medical-chatbot-index"
+INDEX_NAME = "medical-chatbot-index"
 
-if not pc.has_index(index_name):
+if not pc.has_index(INDEX_NAME):
     pc.create_index(
-        name=index_name,
+        name=INDEX_NAME,
         dimension=384,
         metric="cosine",
         spec=ServerlessSpec(cloud="aws", region="us-east-1")
@@ -31,5 +31,5 @@ if not pc.has_index(index_name):
 docsearch = PineconeVectorStore.from_documents(
     documents=text_chunks,
     embedding=embedding_model,
-    index_name=index_name
+    index_name=INDEX_NAME
 )

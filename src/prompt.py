@@ -2,7 +2,7 @@
 
 from langchain.prompts import ChatPromptTemplate
 
-system_prompt = (
+SYSTEM_PROMPT = (
     "You are a helpful assistant that provides information about medical conditions based on the retrieved documents."
     " Use the following retrieved documents to answer the user's question."
     " If the retrieved documents do not contain relevant information, respond with 'I don't know'."
@@ -13,7 +13,7 @@ system_prompt = (
 
 prompt = ChatPromptTemplate.from_messages(
     [
-        ("system", system_prompt),
+        ("system", SYSTEM_PROMPT),
         ("human", "{input}")
     ]
 )
