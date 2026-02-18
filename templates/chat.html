@@ -1,81 +1,197 @@
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
 <!DOCTYPE html>
-<html>
-	<head>
-		<title>Medical Chatbot</title>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}"/>
-	</head>
-	
-	
-	<body>
-		<div class="container-fluid h-100">
-			<div class="row justify-content-center h-100">		
-				<div class="col-md-8 col-xl-6 chat">
-					<div class="card">
-						<div class="card-header msg_head">
-							<div class="d-flex bd-highlight">
-								<div class="img_cont">
-									<img src="https://cdn-icons-png.flaticon.com/512/387/387569.png" class="rounded-circle user_img">
-									<!-- <img src="https://www.prdistribution.com/spirit/uploads/pressreleases/2019/newsreleases/d83341deb75c4c4f6b113f27b1e42cd8-chatbot-florence-already-helps-thousands-of-patients-to-remember-their-medication.png" class="rounded-circle user_img"> -->
-									<span class="online_icon"></span>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0, user-scalable=yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Medical Assistant">
+	<meta name="theme-color" content="#0891b2">
+	<title>Medical AI Assistant</title>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css" integrity="sha512-3gftQNeuWapBKtglMemY+7lRH2SvWKeq45S9LaLSSna4z1F8vJcnDA1/sSQB9HRNXD5+JsOO9QTfsarystJ/KQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}?v=3"/>
+</head>
+
+<body>
+	<div class="app-wrapper">
+		<div class="chat-container">
+			<div class="chat-wrapper">
+				<div class="chat-card">
+					<!-- Header -->
+					<header class="chat-header" role="banner">
+						<div class="header-content">
+							<div class="doctor-avatar-container" aria-label="Medical Assistant Avatar">
+								<div class="doctor-avatar">
+									<i class="fas fa-stethoscope" aria-hidden="true"></i>
 								</div>
-								<div class="user_info">
-									<span>Medical Chatbot</span>
-									<p>Ask me anything!</p>
-								</div>
+								<span class="avatar-glow"></span>
+							</div>
+							<div class="header-info">
+								<h1 class="bot-name">Medical AI Assistant</h1>
+								<p class="bot-status"><span class="status-dot" aria-hidden="true"></span>Online & Ready</p>
 							</div>
 						</div>
-						<div id="messageFormeight" class="card-body msg_card_body">
-							
-							
+						<nav class="header-actions" aria-label="Header actions">
+							<button class="icon-btn" title="Information" aria-label="Information">
+								<i class="fas fa-info-circle" aria-hidden="true"></i>
+							</button>
+						</nav>
+					</header>
+
+					<!-- Messages Area -->
+					<main id="messageFormeight" class="messages-container" role="main" aria-label="Chat messages">
+						<div class="welcome-message">
+							<div class="welcome-icon" aria-hidden="true">
+								<i class="fas fa-heart-pulse"></i>
+							</div>
+							<h2>Welcome to Your Medical Assistant</h2>
+							<p>I'm here to help answer your health-related questions with comprehensive medical information and guidance.</p>
+							<div class="quick-action-buttons">
+								<button class="quick-action-btn" onclick="quickAction('Tell me about common cold symptoms')">
+									<i class="fas fa-virus"></i> Common Cold
+								</button>
+								<button class="quick-action-btn" onclick="quickAction('What should I know about hypertension?')">
+									<i class="fas fa-heart"></i> Hypertension
+								</button>
+								<button class="quick-action-btn" onclick="quickAction('Explain diabetes and its management')">
+									<i class="fas fa-droplet"></i> Diabetes
+								</button>
+							</div>
+							<div class="quick-tips">
+								<p><i class="fas fa-lightbulb"></i> <strong>Tips:</strong> Be specific with your symptoms for better assistance</p>
+							</div>
 						</div>
-						<div class="card-footer">
-							<form id="messageArea" class="input-group">
-                                <input type="text" id="text" name="msg" placeholder="Type your message..." autocomplete="off" class="form-control type_msg" required/>
-								<div class="input-group-append">
-									<button type="submit" id="send" class="input-group-text send_btn"><i class="fas fa-location-arrow"></i></button>
-								</div>
-							</form>
-						</div>
-					</div>
+					</main>
+
+					<!-- Input Area -->
+					<footer class="chat-footer" role="contentinfo">
+						<form id="messageArea" class="message-input-wrapper">
+							<div class="input-container">
+								<input 
+									type="text" 
+									id="text" 
+									name="msg" 
+									placeholder="Ask me anything about your health..." 
+									autocomplete="off" 
+									class="message-input" 
+									aria-label="Message input"
+									required
+								/>
+								<button 
+									type="submit" 
+									id="send" 
+									class="send-button" 
+									title="Send message"
+									aria-label="Send message"
+								>
+									<i class="fas fa-arrow-up" aria-hidden="true"></i>
+								</button>
+							</div>
+						</form>
+					</footer>
 				</div>
 			</div>
 		</div>
+	</div>
+
+	<!-- Loading Animation -->
+	<div class="typing-indicator" style="display: none;">
+		<span></span>
+		<span></span>
+		<span></span>
+	</div>
 		
-		<script>
-			$(document).ready(function() {
-				$("#messageArea").on("submit", function(event) {
-					const date = new Date();
-					const hour = date.getHours();
-					const minute = date.getMinutes();
-					const str_time = hour+":"+minute;
-					var rawText = $("#text").val();
+	<script>
+		function quickAction(message) {
+			$("#text").val(message);
+			$("#messageArea").submit();
+		}
 
-					var userHtml = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' + rawText + '<span class="msg_time_send">'+ str_time + '</span></div><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
-					
-					$("#text").val("");
-					$("#messageFormeight").append(userHtml);
+		$(document).ready(function() {
+			$("#messageArea").on("submit", function(event) {
+				const date = new Date();
+				const hour = String(date.getHours()).padStart(2, '0');
+				const minute = String(date.getMinutes()).padStart(2, '0');
+				const str_time = hour + ":" + minute;
+				var rawText = $("#text").val();
 
-					$.ajax({
-						data: {
-							msg: rawText,	
-						},
-						type: "POST",
-						url: "/get",
-					}).done(function(data) {
-						var botHtml = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://cdn-icons-png.flaticon.com/512/387/387569.png" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">' + data + '<span class="msg_time">' + str_time + '</span></div></div>';
-						$("#messageFormeight").append($.parseHTML(botHtml));
-					});
+				if (!rawText.trim()) {
 					event.preventDefault();
+					return;
+				}
+
+				// User message HTML
+				var userHtml = `<div class="message-group user-message">
+					<div class="message-bubble user-bubble">
+						<p class="message-text">${rawText}</p>
+						<span class="message-time">${str_time}</span>
+					</div>
+				</div>`;
+				
+				$("#text").val("");
+				$("#messageFormeight").append(userHtml);
+				$("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+
+				// Show loading indicator
+				var loadingHtml = `<div class="message-group bot-message loading-message">
+					<div class="message-avatar">
+						<i class="fas fa-stethoscope"></i>
+					</div>
+					<div class="message-bubble bot-bubble">
+						<div class="typing-dots">
+							<span></span>
+							<span></span>
+							<span></span>
+						</div>
+					</div>
+				</div>`;
+				$("#messageFormeight").append(loadingHtml);
+				$("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+
+				$.ajax({
+					data: {
+						msg: rawText,	
+					},
+					type: "POST",
+					url: "/get",
+				}).done(function(data) {
+					// Remove loading indicator
+					$("#messageFormeight").find(".loading-message").remove();
+
+					// Bot message HTML
+					var botHtml = `<div class="message-group bot-message">
+						<div class="message-avatar">
+							<i class="fas fa-stethoscope"></i>
+						</div>
+						<div class="message-bubble bot-bubble">
+							<p class="message-text">${data}</p>
+							<span class="message-time">${str_time}</span>
+						</div>
+					</div>`;
+					$("#messageFormeight").append($.parseHTML(botHtml));
+					$("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+				}).fail(function(error) {
+					// Remove loading indicator
+					$("#messageFormeight").find(".loading-message").remove();
+					
+					console.error("Error:", error);
+					var errorHtml = `<div class="message-group bot-message">
+						<div class="message-avatar">
+							<i class="fas fa-stethoscope"></i>
+						</div>
+						<div class="message-bubble bot-bubble error-bubble">
+							<p class="message-text">I apologize, but I encountered an error processing your question. Please try again.</p>
+							<span class="message-time">${str_time}</span>
+						</div>
+					</div>`;
+					$("#messageFormeight").append($.parseHTML(errorHtml));
+					$("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
 				});
+				event.preventDefault();
 			});
-		</script>
-        
-    </body>
+		});
+	</script>
+	</body>
 </html>

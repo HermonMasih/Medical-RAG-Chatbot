@@ -1,6 +1,6 @@
 # Medical-RAG-Chatbot
 
-A Generative AI-powered medical chatbot built on Retrieval-Augmented Generation (RAG) architecture. This chatbot leverages LangChain, Pinecone vector database, and HuggingFace embeddings to provide accurate, document-based medical information retrieval and question answering.
+A conversational AI system for medical question-answering that combines Retrieval-Augmented Generation (RAG) with LangChain, Pinecone vector storage, and HuggingFace embeddings. The chatbot maintains conversation history through Conversation Buffer Memory, delivering contextually-aware responses grounded in medical documents.
 
 ## Overview
 
@@ -64,18 +64,27 @@ The application follows a typical RAG pipeline:
    HUGGINGFACEHUB_API_TOKEN=your_huggingface_api_token
    ```
 
-2. **Prepare your data**:
-   - Create a `pdfs/` directory in the project root
-   - Place your medical PDF documents in this directory
+2. **Prepare your medical documents**:
+   - Medical PDF documents should be placed in the appropriate location as configured in your environment
+   - See `src/helper.py` for document loading configuration
 
 3. **Initialize the vector database**:
    ```bash
    python src/store_index.py
    ```
    This script will:
-   - Load all PDFs from the `pdfs/` directory
+   - Load PDF documents from the configured location
    - Create embeddings using HuggingFace models
    - Initialize a Pinecone index and store the embeddings
+
+## Docker Deployment
+
+You can also run the chatbot using Docker:
+
+```bash
+docker build -t medical-rag-chatbot .
+docker run -p 8080:8080 --env-file .env medical-rag-chatbot
+```
 
 ## Usage
 
@@ -98,13 +107,15 @@ The application follows a typical RAG pipeline:
 ```
 Medical-RAG-Chatbot/
 ├── app.py                      # Flask application and main API endpoints
+├── Dockerfile                  # Docker configuration for containerization
+├── LICENSE                     # License file
+├── README.md                   # Project documentation
 ├── requirements.txt            # Python dependencies
 ├── setup.py                    # Package setup configuration
 ├── template.sh                 # Shell script template
-├── README.md                   # Project documentation
-├── LICENSE                     # License file
 ├── data_files/                 # Directory for data storage
-├── pdfs/                       # Directory for input medical PDFs
+├── research/
+│   └── trials.ipynb           # Jupyter notebook for experimental trials and research
 ├── src/
 │   ├── __init__.py
 │   ├── helper.py              # PDF loading, chunking, and embedding utilities
@@ -112,10 +123,9 @@ Medical-RAG-Chatbot/
 │   ├── store_index.py         # Pinecone index initialization and management
 │   └── __pycache__/           # Python cache
 ├── static/
-│   ├── style.css              # Chat interface styling
-├── templates/
-│   ├── chat.html              # Web interface template
-└── medical_chatbot.egg-info/  # Package metadata
+│   └── style.css              # Chat interface styling
+└── templates/
+    └── chat.html              # Web interface template
 ```
 
 ## Technologies Used
@@ -193,7 +203,6 @@ Medical-RAG-Chatbot/
 - Multi-language support
 - Document upload via web interface
 - Advanced filtering and metadata search
-- Conversation history management
 - Performance optimization with caching
 - Integration with additional medical databases
 
