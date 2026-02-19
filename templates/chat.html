@@ -11,20 +11,46 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css" integrity="sha512-3gftQNeuWapBKtglMemY+7lRH2SvWKeq45S9LaLSSna4z1F8vJcnDA1/sSQB9HRNXD5+JsOO9QTfsarystJ/KQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
 	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}?v=3"/>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}?v=5"/>
 </head>
 
-<body>
+<body id="body-element">
 	<div class="app-wrapper">
+		<!-- Sidebar -->
+		<aside class="sidebar" id="sidebar" role="navigation">
+			<div class="sidebar-header">
+				<h3>Conversations</h3>
+				<button class="sidebar-close" id="sidebarClose" title="Close sidebar">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+			<div class="sidebar-content">
+				<div class="conversation-list" id="conversationList">
+					<p class="empty-state">No previous conversations</p>
+				</div>
+			</div>
+			<div class="sidebar-footer">
+				<button class="sidebar-action-btn" id="newConvBtn" title="New conversation">
+					<i class="fas fa-plus"></i> New Chat
+				</button>
+			</div>
+		</aside>
+
+		<!-- Sidebar Overlay -->
+		<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 		<div class="chat-container">
 			<div class="chat-wrapper">
 				<div class="chat-card">
 					<!-- Header -->
 					<header class="chat-header" role="banner">
+						<button class="menu-toggle" id="menuToggle" title="Open menu" aria-label="Open menu">
+							<i class="fas fa-bars"></i>
+						</button>
 						<div class="header-content">
 							<div class="doctor-avatar-container" aria-label="Medical Assistant Avatar">
 								<div class="doctor-avatar">
-									<i class="fas fa-stethoscope" aria-hidden="true"></i>
+								<img src="{{ url_for('static', filename='doctor-avatar.svg') }}" alt="Medical AI Assistant" class="avatar-image">
 								</div>
 								<span class="avatar-glow"></span>
 							</div>
@@ -34,8 +60,11 @@
 							</div>
 						</div>
 						<nav class="header-actions" aria-label="Header actions">
-							<button class="icon-btn" title="Information" aria-label="Information">
-								<i class="fas fa-info-circle" aria-hidden="true"></i>
+							<button class="icon-btn" id="darkModeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+								<i class="fas fa-moon"></i>
+							</button>
+							<button class="icon-btn" id="settingsBtn" title="Settings" aria-label="Settings">
+								<i class="fas fa-cog"></i>
 							</button>
 						</nav>
 					</header>
@@ -67,6 +96,14 @@
 
 					<!-- Input Area -->
 					<footer class="chat-footer" role="contentinfo">
+						<div class="footer-actions">
+							<button class="footer-action-btn" id="clearChatBtn" title="Clear chat" aria-label="Clear chat">
+								<i class="fas fa-trash-alt"></i>
+							</button>
+							<button class="footer-action-btn" id="exportChatBtn" title="Export chat" aria-label="Export chat">
+								<i class="fas fa-download"></i>
+							</button>
+						</div>
 						<form id="messageArea" class="message-input-wrapper">
 							<div class="input-container">
 								<input 
@@ -96,20 +133,301 @@
 		</div>
 	</div>
 
+	<!-- Settings Modal -->
+	<div class="modal" id="settingsModal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="modal-header-content">
+					<i class="fas fa-sliders-h"></i>
+					<h2>Settings</h2>
+				</div>
+				<button class="modal-close" title="Close">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="settings-section">
+					<h3><i class="fas fa-palette"></i> Appearance</h3>
+					<div class="setting-item">
+						<div class="label-with-icon">
+							<i class="fas fa-moon"></i>
+							<label>Dark Mode</label>
+						</div>
+						<div class="toggle-switch">
+							<input type="checkbox" id="darkModeToggleSwitch" class="toggle-input">
+							<span class="toggle-slider"></span>
+						</div>
+					</div>
+				</div>
+				<div class="settings-section">
+					<h3><i class="fas fa-bell"></i> Chat Settings</h3>
+					<div class="setting-item">
+						<div class="label-with-icon">
+							<i class="fas fa-volume-up"></i>
+							<label>Sound Notifications</label>
+						</div>
+						<div class="toggle-switch">
+							<input type="checkbox" id="soundToggle" class="toggle-input" checked>
+							<span class="toggle-slider"></span>
+						</div>
+					</div>
+					<div class="setting-item">
+						<div class="label-with-icon">
+							<i class="fas fa-arrow-down"></i>
+							<label>Auto-scroll to New Messages</label>
+						</div>
+						<div class="toggle-switch">
+							<input type="checkbox" id="autoScrollToggle" class="toggle-input" checked>
+							<span class="toggle-slider"></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Notification Toast -->
+	<div class="toast" id="toast"></div>
+
 	<!-- Loading Animation -->
 	<div class="typing-indicator" style="display: none;">
 		<span></span>
 		<span></span>
 		<span></span>
 	</div>
-		
 	<script>
+		// Dark Mode
+		const darkModeToggle = document.getElementById('darkModeToggle');
+		const darkModeToggleSwitch = document.getElementById('darkModeToggleSwitch');
+		const soundToggle = document.getElementById('soundToggle');
+		const autoScrollToggle = document.getElementById('autoScrollToggle');
+		const bodyElement = document.getElementById('body-element');
+
+		function initDarkMode() {
+			const isDarkMode = localStorage.getItem('darkMode') === 'true';
+			if (isDarkMode) {
+				bodyElement.classList.add('dark-mode');
+				darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+			}
+			darkModeToggleSwitch.checked = isDarkMode;
+		}
+
+		function initSettings() {
+			const soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+			const autoScrollEnabled = localStorage.getItem('autoScroll') !== 'false';
+			soundToggle.checked = soundEnabled;
+			autoScrollToggle.checked = autoScrollEnabled;
+		}
+
+		darkModeToggle.addEventListener('click', toggleDarkMode);
+		darkModeToggleSwitch.addEventListener('change', toggleDarkMode);
+		soundToggle.addEventListener('change', function() {
+			localStorage.setItem('soundEnabled', this.checked);
+			showToast(this.checked ? 'Sound notifications enabled' : 'Sound notifications disabled', 'info');
+		});
+		autoScrollToggle.addEventListener('change', function() {
+			localStorage.setItem('autoScroll', this.checked);
+			showToast(this.checked ? 'Auto-scroll enabled' : 'Auto-scroll disabled', 'info');
+		});
+
+		function toggleDarkMode() {
+			bodyElement.classList.toggle('dark-mode');
+			const isDarkMode = bodyElement.classList.contains('dark-mode');
+			localStorage.setItem('darkMode', isDarkMode);
+			darkModeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+			darkModeToggleSwitch.checked = isDarkMode;
+			showToast(isDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'info');
+		}
+
+		// Sidebar Management
+		const sidebar = document.getElementById('sidebar');
+		const sidebarOverlay = document.getElementById('sidebarOverlay');
+		const menuToggle = document.getElementById('menuToggle');
+		const sidebarClose = document.getElementById('sidebarClose');
+
+		function toggleSidebar(show) {
+			if (show) {
+				sidebar.classList.add('active');
+				sidebarOverlay.classList.add('active');
+			} else {
+				sidebar.classList.remove('active');
+				sidebarOverlay.classList.remove('active');
+			}
+		}
+
+		menuToggle.addEventListener('click', () => toggleSidebar(true));
+		sidebarClose.addEventListener('click', () => toggleSidebar(false));
+		sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
+
+		// Settings Modal
+		const settingsBtn = document.getElementById('settingsBtn');
+		const settingsModal = document.getElementById('settingsModal');
+		const modalClose = document.querySelector('.modal-close');
+
+		settingsBtn.addEventListener('click', () => settingsModal.classList.add('active'));
+		modalClose.addEventListener('click', () => settingsModal.classList.remove('active'));
+		window.addEventListener('click', (e) => {
+			if (e.target === settingsModal) settingsModal.classList.remove('active');
+		});
+
+		// Show Toast Notification
+		function showToast(message, type = 'info', duration = 3000) {
+			const toast = document.getElementById('toast');
+			toast.textContent = message;
+			toast.className = `toast active ${type}`;
+			setTimeout(() => toast.classList.remove('active'), duration);
+		}
+
+		// Save chat to localStorage
+		function saveChatHistory() {
+			const messages = [];
+			document.querySelectorAll('.message-group').forEach(msg => {
+				const isUser = msg.classList.contains('user-message');
+				const text = msg.querySelector('.message-text').textContent;
+				messages.push({ user: isUser, text });
+			});
+			localStorage.setItem('chatHistory', JSON.stringify(messages));
+			updateConversationList();
+		}
+
+		// Load chat history
+		function loadChatHistory() {
+			const saved = localStorage.getItem('chatHistory');
+			if (saved) {
+				try {
+					const messages = JSON.parse(saved);
+					messages.forEach(msg => {
+						const date = new Date();
+						const hour = String(date.getHours()).padStart(2, '0');
+						const minute = String(date.getMinutes()).padStart(2, '0');
+						const str_time = hour + ":" + minute;
+
+						const html = `<div class="message-group ${msg.user ? 'user-message' : 'bot-message'}">
+							${!msg.user ? '<div class="message-avatar"><i class="fas fa-stethoscope"></i></div>' : ''}
+							<div class="message-bubble ${msg.user ? 'user-bubble' : 'bot-bubble'}">
+								<p class="message-text">${msg.text}</p>
+								<span class="message-time">${str_time}</span>
+								${!msg.user ? '<div class="message-actions"><button class="msg-action-btn copy-btn" title="Copy"><i class="fas fa-copy"></i></button></div>' : '<button class="msg-delete-btn" title="Delete"><i class="fas fa-trash"></i></button>'}
+							</div>
+						</div>`;
+						document.getElementById('messageFormeight').appendChild($.parseHTML(html)[0]);
+					});
+					document.getElementById('messageFormeight').scrollTop(document.getElementById('messageFormeight').scrollHeight);
+					attachMessageActions();
+				} catch (e) {
+					console.error('Error loading chat history:', e);
+				}
+			}
+		}
+
+		// Update conversation list
+		function updateConversationList() {
+			const saved = localStorage.getItem('chatHistory');
+			const list = document.getElementById('conversationList');
+			if (saved) {
+				try {
+					const messages = JSON.parse(saved);
+					const preview = messages[0]?.text.substring(0, 30) + '...' || 'Conversation';
+					list.innerHTML = `<div class="conversation-item active" data-id="main">
+						<span>${preview}</span>
+						<small>${new Date().toLocaleDateString()}</small>
+					</div>`;
+				} catch (e) {
+					list.innerHTML = '<p class="empty-state">No previous conversations</p>';
+				}
+			}
+		}
+
+		// Clear chat
+		document.getElementById('clearChatBtn').addEventListener('click', () => {
+			if (confirm('Are you sure you want to clear this conversation?')) {
+				document.getElementById('messageFormeight').innerHTML = `
+					<div class="welcome-message">
+						<div class="welcome-icon"><i class="fas fa-heart-pulse"></i></div>
+						<h2>Welcome to Your Medical Assistant</h2>
+						<p>I'm here to help answer your health-related questions.</p>
+						<div class="quick-action-buttons">
+							<button class="quick-action-btn" onclick="quickAction('Tell me about common cold symptoms')">
+								<i class="fas fa-virus"></i> Common Cold
+							</button>
+							<button class="quick-action-btn" onclick="quickAction('What should I know about hypertension?')">
+								<i class="fas fa-heart"></i> Hypertension
+							</button>
+							<button class="quick-action-btn" onclick="quickAction('Explain diabetes and its management')">
+								<i class="fas fa-droplet"></i> Diabetes
+							</button>
+						</div>
+					</div>`;
+				localStorage.removeItem('chatHistory');
+				updateConversationList();
+				showToast('Chat cleared', 'success');
+			}
+		});
+
+		// Export chat
+		document.getElementById('exportChatBtn').addEventListener('click', () => {
+			const messages = [];
+			document.querySelectorAll('.message-group').forEach(msg => {
+				const isUser = msg.classList.contains('user-message');
+				const text = msg.querySelector('.message-text').textContent;
+				messages.push(`${isUser ? 'You' : 'Medical Assistant'}: ${text}`);
+			});
+			
+			const text = messages.join('\n\n');
+			const element = document.createElement('a');
+			element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+			element.setAttribute('download', `medical-chat-${new Date().getTime()}.txt`);
+			element.style.display = 'none';
+			document.body.appendChild(element);
+			element.click();
+			document.body.removeChild(element);
+			showToast('Chat exported', 'success');
+		});
+
+		// New conversation
+		document.getElementById('newConvBtn').addEventListener('click', () => {
+			localStorage.removeItem('chatHistory');
+			location.reload();
+		});
+
+		// Attach message action buttons
+		function attachMessageActions() {
+			document.querySelectorAll('.copy-btn').forEach(btn => {
+				btn.removeEventListener('click', copyMessage);
+				btn.addEventListener('click', copyMessage);
+			});
+			document.querySelectorAll('.msg-delete-btn').forEach(btn => {
+				btn.removeEventListener('click', deleteMessage);
+				btn.addEventListener('click', deleteMessage);
+			});
+		}
+
+		function copyMessage(e) {
+			const text = e.closest('.message-group').querySelector('.message-text').textContent;
+			navigator.clipboard.writeText(text).then(() => {
+				showToast('Copied to clipboard', 'success');
+			});
+		}
+
+		function deleteMessage(e) {
+			e.closest('.message-group').remove();
+			saveChatHistory();
+			showToast('Message deleted', 'success');
+		}
+
+		// Quick action
 		function quickAction(message) {
 			$("#text").val(message);
 			$("#messageArea").submit();
 		}
 
+		// Main chat functionality
 		$(document).ready(function() {
+			initDarkMode();
+			initSettings();
+			loadChatHistory();
+			updateConversationList();
+
 			$("#messageArea").on("submit", function(event) {
 				const date = new Date();
 				const hour = String(date.getHours()).padStart(2, '0');
@@ -122,17 +440,25 @@
 					return;
 				}
 
+				// Hide welcome message if visible
+				document.querySelectorAll('.welcome-message').forEach(el => el.style.display = 'none');
+
 				// User message HTML
 				var userHtml = `<div class="message-group user-message">
 					<div class="message-bubble user-bubble">
 						<p class="message-text">${rawText}</p>
 						<span class="message-time">${str_time}</span>
+						<button class="msg-delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
 					</div>
 				</div>`;
 				
 				$("#text").val("");
 				$("#messageFormeight").append(userHtml);
-				$("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+				attachMessageActions();
+				const container = document.getElementById('messageFormeight');
+				if (document.getElementById('autoScrollToggle').checked) {
+					container.scrollTop = container.scrollHeight;
+				}
 
 				// Show loading indicator
 				var loadingHtml = `<div class="message-group bot-message loading-message">
@@ -148,7 +474,10 @@
 					</div>
 				</div>`;
 				$("#messageFormeight").append(loadingHtml);
-				$("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+				const container2 = document.getElementById('messageFormeight');
+				if (document.getElementById('autoScrollToggle').checked) {
+					container2.scrollTop = container2.scrollHeight;
+				}
 
 				$.ajax({
 					data: {
@@ -160,6 +489,11 @@
 					// Remove loading indicator
 					$("#messageFormeight").find(".loading-message").remove();
 
+					// Play sound if enabled
+					if (document.getElementById('soundToggle').checked) {
+						playNotificationSound();
+					}
+
 					// Bot message HTML
 					var botHtml = `<div class="message-group bot-message">
 						<div class="message-avatar">
@@ -168,10 +502,20 @@
 						<div class="message-bubble bot-bubble">
 							<p class="message-text">${data}</p>
 							<span class="message-time">${str_time}</span>
+							<div class="message-actions">
+								<button class="msg-action-btn copy-btn" title="Copy"><i class="fas fa-copy"></i></button>
+								<button class="msg-action-btn feedback-btn" title="Feedback"><i class="fas fa-thumbs-up"></i></button>
+							</div>
 						</div>
 					</div>`;
 					$("#messageFormeight").append($.parseHTML(botHtml));
-					$("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+					attachMessageActions();
+					const container3 = document.getElementById('messageFormeight');
+					if (document.getElementById('autoScrollToggle').checked) {
+						container3.scrollTop = container3.scrollHeight;
+					}
+					saveChatHistory();
+					showToast('Response received', 'success');
 				}).fail(function(error) {
 					// Remove loading indicator
 					$("#messageFormeight").find(".loading-message").remove();
@@ -187,11 +531,40 @@
 						</div>
 					</div>`;
 					$("#messageFormeight").append($.parseHTML(errorHtml));
-					$("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+					const container4 = document.getElementById('messageFormeight');
+					if (document.getElementById('autoScrollToggle').checked) {
+						container4.scrollTop = container4.scrollHeight;
+					}
+					showToast('Error sending message', 'error');
+					saveChatHistory();
 				});
 				event.preventDefault();
 			});
+
+			// Feedback button
+			$(document).on('click', '.feedback-btn', function() {
+				showToast('Thank you for your feedback!', 'success');
+				$(this).disabled = true;
+			});
 		});
+
+		// Notification sound
+		function playNotificationSound() {
+			const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+			const oscillator = audioContext.createOscillator();
+			const gainNode = audioContext.createGain();
+			
+			oscillator.connect(gainNode);
+			gainNode.connect(audioContext.destination);
+			
+			oscillator.frequency.value = 800;
+			oscillator.type = 'sine';
+			gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+			gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+			
+			oscillator.start(audioContext.currentTime);
+			oscillator.stop(audioContext.currentTime + 0.1);
+		}
 	</script>
 	</body>
 </html>
